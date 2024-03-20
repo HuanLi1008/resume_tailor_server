@@ -55,7 +55,13 @@ mockup files: https://www.figma.com/file/WoHExJmZcnjqCnRYM1NI7b/Resume-Tailor?ty
 
 ### Endpoints
 - post '/resume' 
-    - request body:{user_id: , user_name: , links: , summary: , skills: , education: , experience: , project: ,}
+    - request body:
+{"name": "1", "role": "2", "phone_number": "3",
+ "email": "4", "summary": "5", "skills": "6", 
+ "links": [{"link": "7"}], "educations": [{"title": "8", "subtitle": "8"}],
+  "experiences":[{"title": "9", "subtitle": "9", "bullet_points": "9"}], 
+  "projects":[{"title": "10", "subtitle": "10", "bullet_points": "10"}]}
+
     - response: {id: , user_id: , user_name: , links: , summary: , skills: , education: , experience: , project: ,}
 - put '/resume/:id'
     - request body: {skills: }
