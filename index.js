@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const resume = require('./routes/resume.js');
+const tailor = require('./routes/tailor.js');
 require("dotenv").config();
 
 const PORT= process.env.PORT || 5050;
@@ -8,7 +10,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use('/api/resume', resume);
+app.use('/api/tailor', tailor);
 
+app.get('/', (_req, res)=>{
+    return res.send("Welcom to Resume Tailor API");
+})
 
 app.listen(PORT, ()=>{
     console.log(`Server is listening on port ${PORT}`);
