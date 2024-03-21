@@ -20,5 +20,12 @@ const postresume = async(req, res)=>{
     }
     
 }
+const getresume = async(req, res)=>{
+    try {
+        return res.status(200).json("This is getting resume endpoint");
+    } catch (error) {
+        
+    }
+}
 
-module.exports = {postresume};
+module.exports = {postresume, getresume};
