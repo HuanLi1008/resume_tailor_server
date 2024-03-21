@@ -1,11 +1,10 @@
 const router = require("express").Router();
 const resumeController = require('../controllers/resume-controller');
-const {resumeValidator} = require('../middlewares/resume-validator');
-router.route('/')    
+const {resumeValidator, useridValidator} = require('../middlewares/resume-validator');
+router.route('/:userid')  
+    .get(useridValidator, resumeController.getresume)
     .post(resumeValidator,resumeController.postresume);
 
-router.route('/:id')
-    .get(resumeController.getresume);
 
 
 module.exports = router;

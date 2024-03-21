@@ -1,4 +1,4 @@
-
+const knex = require("knex")(require("../knexfile"));
 
 /*
 example request 
@@ -36,4 +36,16 @@ function resumeValidator(req, res, next){
     next();
 }
 
-module.exports = {resumeValidator};
+function useridValidator(req, res,next){
+    const user_id = req.params.userid;
+    const matchid = async()=>{
+        const foundUser = await knex('user').where('id', user_id);
+        if(!foundUser.length){
+            return res.status(400).json({ error: `The user with id ${user_id} doesn't exist!` });
+        }
+        next();
+    }
+    matchid();
+}
+
+module.exports = {resumeValidator, useridValidator};
