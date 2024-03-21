@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const resume = require('./routes/resume.js');
 const tailor = require('./routes/tailor.js');
+const user = require('./routes/user.js');
 require("dotenv").config();
 
 const PORT= process.env.PORT || 5050;
@@ -12,6 +13,7 @@ app.use(cors());
 
 app.use('/api/resume', resume);
 app.use('/api/tailor', tailor);
+app.use('/api/user', user);
 
 app.get('/', (_req, res)=>{
     return res.send("Welcom to Resume Tailor API");

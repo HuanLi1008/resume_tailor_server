@@ -5,10 +5,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable("user", (table)=>{
     table.increments('id').primary();
-    table.string("name").notNullable();
-    table.string("role").notNullable();
-    table.string("phone_number").notNullable();
-    table.string("email").notNullable();
+    table.string("username").notNullable();
     
   })
     .createTable("resume", (table)=>{
@@ -19,6 +16,10 @@ exports.up = function(knex) {
         .references("user.id")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+    table.string("name").notNullable();
+    table.string("role").notNullable();
+    table.string("phone_number").notNullable();
+    table.string("email").notNullable();
     table.string("summary").notNullable();
     table.string("skills").notNullable();
   })
