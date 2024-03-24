@@ -33,6 +33,9 @@ const getresume = async(req, res)=>{
         const foundResume = await knex("resume")
             .where("user_id", user_id);
         let resume = foundResume[0];
+        if(!resume){
+            return res.json({message: "no resume"});
+        }
         const resume_id = resume.id;
         const linkrows = await knex("link").where("resume_id", resume_id);
         const educationrows = await knex("education").where("resume_id", resume_id);
