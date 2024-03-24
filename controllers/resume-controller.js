@@ -41,7 +41,7 @@ const getresume = async(req, res)=>{
         const educationrows = await knex("education").where("resume_id", resume_id);
         const experiencerows = await knex("experience").where("resume_id", resume_id);
         const projectrows = await knex("project").where("resume_id", resume_id);
-        resume = {...resume, link: linkrows, education: educationrows, experience: experiencerows, project: projectrows};
+        resume = {...resume, links: linkrows, educations: educationrows, experiences: experiencerows, projects: projectrows};
         return res.json(resume);
     } catch (error) {
         return res.status(500).json({error: {message: `Can not get resume ${error}`}});
