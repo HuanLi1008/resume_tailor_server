@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "npx nodemon index.js",
     "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make",
     "migrate:down": "knex migrate:down",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
