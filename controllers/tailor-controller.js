@@ -24,9 +24,12 @@ const tailorResume = async (req, res)=>{
         // const keywords = await getKeywords(jd);
         const keywords = ["Bachelor's degree","Computer Science","Engineering","Full Stack Developer","PHP","Laravel framework","HTML","CSS","JavaScript","Vue.js","MySQL","Git","GitLab","Docker","software development lifecycle","Agile methodologies","problem-solving","communication skills"];
 
-        // tailor experience
-         
-        return res.json(tailorObject(experiencerows, keywords));
+        // tailor experience and project
+        const tailoredExperience = tailorObject(experiencerows, keywords);
+        const tailoredProject = tailorObject(projectrows, keywords);
+        
+        const newResume = {...resume, links: linkrows, educations: educationrows, experiences: tailoredExperience, projects: tailoredProject};
+        return res.json({resume: newResume, keywords: keywords});
 
     } catch (error) {
         return res.status(500).json({error: {message:`Can not tailor resume: ${error}`}})
