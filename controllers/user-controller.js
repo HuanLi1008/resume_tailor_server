@@ -11,4 +11,18 @@ const postuser = async(req, res)=>{
     }
 }
 
-module.exports = {postuser}
+const finduser = async(req, res)=>{
+    const username = req.params.username;
+    if(!username){
+        return res.status(400).json({error: {message: "Please provide username"}});
+    }
+    try {
+        const foundUser = await knex("user").where("username", username);
+        return res.json(foundUser[0]);
+    } catch (error) {
+        return res.status(500).json({error: {message: `Can't find user ${error}`}});
+    }
+
+}
+
+module.exports = {postuser, finduser}
