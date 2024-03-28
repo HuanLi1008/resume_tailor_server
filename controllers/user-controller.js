@@ -1,9 +1,7 @@
 const knex = require("knex")(require("../knexfile"));
 
 const postuser = async(req, res)=>{
-    if(!req.body.username){
-        return res.status(400).json({error: {message: "Please provide username"}});
-    }
+    
     try {
         const insert = await knex("user").insert(req.body);
         const inserted_user = await knex("user").where({"id": insert[0]});

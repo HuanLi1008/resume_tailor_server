@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const userController = require('../controllers/user-controller');
-
+const {createUserValidator} = require("../middlewares/user-validator");
 router.route('/')    
-    .post(userController.postuser);
+    .post(createUserValidator, userController.postuser);
 
 
 
