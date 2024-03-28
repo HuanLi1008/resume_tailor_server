@@ -3,6 +3,8 @@ const userController = require('../controllers/user-controller');
 const {createUserValidator} = require("../middlewares/user-validator");
 router.route('/')    
     .post(createUserValidator, userController.postuser);
+router.route("/:username")
+    .get(userController.finduser)
 
 
 
