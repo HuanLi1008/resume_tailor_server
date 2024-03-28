@@ -29,7 +29,7 @@ const finduser = async(req, res)=>{
         const user = await findUserByName(username);
         
         if(!user){
-            return res.status(404).send({ message: 'Username does not exist.' });
+            return res.status(404).send({error: {message: 'Username does not exist.'}});
         }
         return res.json(user);
     } catch (error) {
