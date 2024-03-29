@@ -144,6 +144,7 @@ const generatePDF = (resume)=>{
     doc.text("", firstLineStart);
     sectionPDF(doc, "Profile", summary, [11, 10]);
     sectionPDF(doc, "Skills", skills, [11, 10]);
+    sectionPDFwithList(doc, "Education", educations, ["title", "subtitle"], [11, 10, 8]);
     doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
     doc.end();
 }
@@ -156,5 +157,25 @@ function sectionPDF(doc, section, content, fonts){
         .fillColor("black")
         .text(content);
     doc.moveDown();
+}
+// handle section with title, subtitle and bullet points
+// paramters, section is section name like experience, contentArr is an array of experiences like[{title:1, subtitle: 2, bullet_points: 3}]
+// looporder is ["title", "subtitle", "bullet_points"] to guanrantee iterate order
+// fonts is [sectionFontSize, titleFontSize, subtitleFontSize, bullet_pointsFontSize]
+function sectionPDFwithList(doc, section, contentArr,loopOrder, fonts){
+    doc.fontSize(fonts[0])
+        .fillColor("blue")
+        .text(section)
+    doc.moveDown(0.5);
+    for(const content of contentArr){
+        for(let i = 0; i < loopOrder.length; i++){
+            const property = loopOrder[i];
+            if(!content[property]) break;
+            doc.fontSize(fonts[i + 1])
+                .fillColor("black")
+                .text(content[property])
+        }
+        doc.moveDown();
+    }
 }
 module.exports = {tailorResume};
