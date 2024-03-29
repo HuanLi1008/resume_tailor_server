@@ -100,25 +100,18 @@ const generatePDF = (resume)=>{
         );
     doc.moveDown();
 
-    // For demonstrating the start of a line
-    let firstLineStart = 72; 
+    // start of a line
+    const firstLineStart = 72; 
 
-    // You have to measure width of the phone number string
     let phoneNumberWidth = doc.widthOfString(phone_number);
-
-    // Start the phone number from the very first line
     doc.fontSize(9)
         .text(phone_number, firstLineStart, 100)
         .link(firstLineStart, 100, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
-
-    // Start the email right after the phone number
     doc.fontSize(9)
         .text(' | ', firstLineStart + phoneNumberWidth - 25, 100)
         .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 100)
-        .link(firstLineStart + phoneNumberWidth - 15, 100, doc.widthOfString(email), 13, `mailto:${email}`);
+        .link(firstLineStart + phoneNumberWidth - 15, 100, doc.widthOfString(email), 10, `mailto:${email}`);
 
-
-    
     // starting position for the first link
     let position = 72;
 
@@ -128,7 +121,7 @@ const generatePDF = (resume)=>{
 
     doc.fontSize(9)
         .text(link, position, 115) 
-        .link(position, 115, linkWidth, 16, link);
+        .link(position, 115, linkWidth, 10, link);
 
     position += linkWidth; 
 
@@ -143,17 +136,25 @@ const generatePDF = (resume)=>{
 
         // add the link
         doc.text(link, position, 115)
-            .link(position, 115, linkWidth, 16, link);
+            .link(position, 115, linkWidth, 10, link);
 
         position += linkWidth; 
     }
     doc.moveDown();
-    
-    doc.fontSize(11)
-        .text("Profile", firstLineStart)
-
+    doc.text("", firstLineStart);
+    sectionPDF(doc, "Profile", summary, [11, 10]);
+    sectionPDF(doc, "Skills", skills, [11, 10]);
     doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
     doc.end();
 }
-
+function sectionPDF(doc, section, content, fonts){
+    doc.fontSize(fonts[0])
+        .fillColor("blue")
+        .text(section)
+    doc.moveDown(0.5);
+    doc.fontSize(fonts[1])
+        .fillColor("black")
+        .text(content);
+    doc.moveDown();
+}
 module.exports = {tailorResume};
