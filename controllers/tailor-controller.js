@@ -92,17 +92,17 @@ const generatePDF = (resume)=>{
     const {name, role, phone_number, email, summary, skills, links, educations, experiences, projects} = resume;
     const doc = new PDFDocument({margin: 54});
     doc.font("./font/calibri/calibri-font-family/calibri-regular.ttf");
+     // start of a line
     const firstLineStart = 54; 
 
+    // first line shows name + role
     doc.fontSize(10);
     doc.fontSize(14)
         .fillColor("#6495ED")
         .text(`${name} | ${role}`);
     doc.moveDown();
 
-    // start of a line
-    
-
+    // second line shows phone_number + email
     let phoneNumberWidth = doc.widthOfString(phone_number);
     doc.fontSize(9)
         .fillColor("black")
@@ -113,6 +113,7 @@ const generatePDF = (resume)=>{
         .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 70)
         .link(firstLineStart + phoneNumberWidth - 15, 70, doc.widthOfString(email), 10, `mailto:${email}`);
 
+    // third line shows all links
     // starting position for the first link
     let position = firstLineStart;
 
@@ -142,11 +143,13 @@ const generatePDF = (resume)=>{
         position += linkWidth; 
     }
     doc.moveDown(0.5);
+    // move mouse back to the start of a line
     doc.text("", firstLineStart);
+    // add rest section of the resume
     sectionPDF(doc, "Profile", summary, [11, 10]);
     sectionPDF(doc, "Skills", skills, [11, 10]);
     sectionPDFwithList(doc, "Education", educations, ["title", "subtitle"], [11, 10, 8]);
-    sectionPDFwithList(doc, "Experience", experiences, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
+    sectionPDFwithList(doc, "Experiences", experiences, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
     sectionPDFwithList(doc, "Projects", projects, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
     doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
     doc.end();
