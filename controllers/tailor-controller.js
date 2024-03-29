@@ -29,8 +29,10 @@ const tailorResume = async (req, res)=>{
         const tailoredProject = tailorObject(projectrows, keywords);
         
         const newResume = {...resume, links: linkrows, educations: educationrows, experiences: tailoredExperience, projects: tailoredProject};
-        generatePDF(newResume);
-        return res.json({resume: newResume, keywords: keywords});
+
+        // generate pdf file with newResume
+        await generatePDF(newResume);
+        return res.json({resumePath: "/myresume.pdf", keywords: keywords});
 
     } catch (error) {
         return res.status(500).json({error: {message:`Can not tailor resume: ${error}`}})
@@ -88,71 +90,76 @@ async function getKeywords(jd){
         console.error(error);
     }
 }
-const generatePDF = (resume)=>{
-    const {name, role, phone_number, email, summary, skills, links, educations, experiences, projects} = resume;
-    const doc = new PDFDocument({margin: 54});
-    doc.font("./font/calibri/calibri-font-family/calibri-regular.ttf");
-     // start of a line
-    const firstLineStart = 54; 
+const generatePDF = async (resume)=>{
+    return new Promise((resolve, reject)=>{    
+        const {name, role, phone_number, email, summary, skills, links, educations, experiences, projects} = resume;
+        const doc = new PDFDocument({margin: 54});
+        const writeStream = fs.createWriteStream('./public/myresume.pdf');
+        writeStream.on('finish', resolve);
+        writeStream.on('error', reject);
+        doc.font("./font/calibri/calibri-font-family/calibri-regular.ttf");
+        // start of a line
+        const firstLineStart = 54; 
 
-    // first line shows name + role
-    doc.fontSize(10);
-    doc.fontSize(14)
-        .fillColor("#6495ED")
-        .text(`${name} | ${role}`);
-    doc.moveDown();
+        // first line shows name + role
+        doc.fontSize(10);
+        doc.fontSize(14)
+            .fillColor("#6495ED")
+            .text(`${name} | ${role}`);
+        doc.moveDown();
 
-    // second line shows phone_number + email
-    let phoneNumberWidth = doc.widthOfString(phone_number);
-    doc.fontSize(9)
-        .fillColor("black")
-        .text(phone_number, firstLineStart, 70)
-        .link(firstLineStart, 70, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
-    doc.fontSize(9)
-        .text(' | ', firstLineStart + phoneNumberWidth - 25, 70)
-        .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 70)
-        .link(firstLineStart + phoneNumberWidth - 15, 70, doc.widthOfString(email), 10, `mailto:${email}`);
+        // second line shows phone_number + email
+        let phoneNumberWidth = doc.widthOfString(phone_number);
+        doc.fontSize(9)
+            .fillColor("black")
+            .text(phone_number, firstLineStart, 70)
+            .link(firstLineStart, 70, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
+        doc.fontSize(9)
+            .text(' | ', firstLineStart + phoneNumberWidth - 25, 70)
+            .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 70)
+            .link(firstLineStart + phoneNumberWidth - 15, 70, doc.widthOfString(email), 10, `mailto:${email}`);
 
-    // third line shows all links
-    // starting position for the first link
-    let position = firstLineStart;
+        // third line shows all links
+        // starting position for the first link
+        let position = firstLineStart;
 
-    // the first link is set before going into the loop to avoid adding a separator before the first link
-    let link = links[0].link;
-    let linkWidth = doc.widthOfString(link);
+        // the first link is set before going into the loop to avoid adding a separator before the first link
+        let link = links[0].link;
+        let linkWidth = doc.widthOfString(link);
 
-    doc.fontSize(9)
-        .text(link, position, 85) 
-        .link(position, 85, linkWidth, 10, link);
-
-    position += linkWidth; 
-
-    // loop over the remaining links
-    for (let i = 1; i < links.length; i++) {
-        link = links[i].link;
-        linkWidth = doc.widthOfString(link);
-
-        // add a separator before each link
-        doc.text(' | ', position, 85);
-        position += doc.widthOfString(' | ');
-
-        // add the link
-        doc.text(link, position, 85)
+        doc.fontSize(9)
+            .text(link, position, 85) 
             .link(position, 85, linkWidth, 10, link);
 
         position += linkWidth; 
-    }
-    doc.moveDown(0.5);
-    // move mouse back to the start of a line
-    doc.text("", firstLineStart);
-    // add rest section of the resume
-    sectionPDF(doc, "Profile", summary, [11, 10]);
-    sectionPDF(doc, "Skills", skills, [11, 10]);
-    sectionPDFwithList(doc, "Education", educations, ["title", "subtitle"], [11, 10, 8]);
-    sectionPDFwithList(doc, "Experiences", experiences, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
-    sectionPDFwithList(doc, "Projects", projects, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
-    doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
-    doc.end();
+
+        // loop over the remaining links
+        for (let i = 1; i < links.length; i++) {
+            link = links[i].link;
+            linkWidth = doc.widthOfString(link);
+
+            // add a separator before each link
+            doc.text(' | ', position, 85);
+            position += doc.widthOfString(' | ');
+
+            // add the link
+            doc.text(link, position, 85)
+                .link(position, 85, linkWidth, 10, link);
+
+            position += linkWidth; 
+        }
+        doc.moveDown(0.5);
+        // move mouse back to the start of a line
+        doc.text("", firstLineStart);
+        // add rest section of the resume
+        sectionPDF(doc, "Profile", summary, [11, 10]);
+        sectionPDF(doc, "Skills", skills, [11, 10]);
+        sectionPDFwithList(doc, "Education", educations, ["title", "subtitle"], [11, 10, 8]);
+        sectionPDFwithList(doc, "Experiences", experiences, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
+        sectionPDFwithList(doc, "Projects", projects, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
+        doc.pipe(writeStream); 
+        doc.end();
+    });
 }
 function sectionPDF(doc, section, content, fonts){
     doc.fontSize(fonts[0])
