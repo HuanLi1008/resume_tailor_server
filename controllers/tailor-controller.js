@@ -2,8 +2,8 @@ const knex = require("knex")(require("../knexfile"));
 require("dotenv").config();
 
 const NLPCloudClient = require('nlpcloud');
-
-
+const PDFDocument = require('pdfkit');
+const fs = require("fs");
 const tailorResume = async (req, res)=>{
     try {
         const user_id = req.params.userid;
@@ -21,14 +21,15 @@ const tailorResume = async (req, res)=>{
         const projectrows = await knex("project").where("resume_id", resume_id);
         // get keywords array
         const {jd}=req.body;
-        const keywords = await getKeywords(jd);
-        // const keywords = ["Bachelor's degree","Computer Science","Engineering","Full Stack Developer","PHP","Laravel framework","HTML","CSS","JavaScript","Vue.js","MySQL","Git","GitLab","Docker","software development lifecycle","Agile methodologies","problem-solving","communication skills"];
+        // const keywords = await getKeywords(jd);
+        const keywords = ["Bachelor's degree","Computer Science","Engineering","Full Stack Developer","PHP","Laravel framework","HTML","CSS","JavaScript","Vue.js","MySQL","Git","GitLab","Docker","software development lifecycle","Agile methodologies","problem-solving","communication skills"];
 
         // tailor experience and project
         const tailoredExperience = tailorObject(experiencerows, keywords);
         const tailoredProject = tailorObject(projectrows, keywords);
         
         const newResume = {...resume, links: linkrows, educations: educationrows, experiences: tailoredExperience, projects: tailoredProject};
+        generatePDF(newResume);
         return res.json({resume: newResume, keywords: keywords});
 
     } catch (error) {
@@ -86,6 +87,73 @@ async function getKeywords(jd){
     } catch (error) {
         console.error(error);
     }
+}
+const generatePDF = (resume)=>{
+    const {name, role, phone_number, email, summary, skills, links, educations, experiences, projects} = resume;
+    const doc = new PDFDocument;
+    doc.fontSize(10);
+    doc.fontSize(14)
+        .text(`${name} | ${role}`, {
+            width: 600,
+            align: 'left'
+            }
+        );
+    doc.moveDown();
+
+    // For demonstrating the start of a line
+    let firstLineStart = 72; 
+
+    // You have to measure width of the phone number string
+    let phoneNumberWidth = doc.widthOfString(phone_number);
+
+    // Start the phone number from the very first line
+    doc.fontSize(9)
+        .text(phone_number, firstLineStart, 100)
+        .link(firstLineStart, 100, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
+
+    // Start the email right after the phone number
+    doc.fontSize(9)
+        .text(' | ', firstLineStart + phoneNumberWidth - 25, 100)
+        .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 100)
+        .link(firstLineStart + phoneNumberWidth - 15, 100, doc.widthOfString(email), 13, `mailto:${email}`);
+
+
+    
+    // starting position for the first link
+    let position = 72;
+
+    // the first link is set before going into the loop to avoid adding a separator before the first link
+    let link = links[0].link;
+    let linkWidth = doc.widthOfString(link);
+
+    doc.fontSize(9)
+        .text(link, position, 115) 
+        .link(position, 115, linkWidth, 16, link);
+
+    position += linkWidth; 
+
+    // loop over the remaining links
+    for (let i = 1; i < links.length; i++) {
+        link = links[i].link;
+        linkWidth = doc.widthOfString(link);
+
+        // add a separator before each link
+        doc.text(' | ', position, 115);
+        position += doc.widthOfString(' | ');
+
+        // add the link
+        doc.text(link, position, 115)
+            .link(position, 115, linkWidth, 16, link);
+
+        position += linkWidth; 
+    }
+    doc.moveDown();
+    
+    doc.fontSize(11)
+        .text("Profile", firstLineStart)
+
+    doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
+    doc.end();
 }
 
 module.exports = {tailorResume};
