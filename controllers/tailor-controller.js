@@ -90,38 +90,39 @@ async function getKeywords(jd){
 }
 const generatePDF = (resume)=>{
     const {name, role, phone_number, email, summary, skills, links, educations, experiences, projects} = resume;
-    const doc = new PDFDocument;
+    const doc = new PDFDocument({margin: 54});
+    doc.font("./font/calibri/calibri-font-family/calibri-regular.ttf");
+    const firstLineStart = 54; 
+
     doc.fontSize(10);
     doc.fontSize(14)
-        .text(`${name} | ${role}`, {
-            width: 600,
-            align: 'left'
-            }
-        );
+        .fillColor("#6495ED")
+        .text(`${name} | ${role}`);
     doc.moveDown();
 
     // start of a line
-    const firstLineStart = 72; 
+    
 
     let phoneNumberWidth = doc.widthOfString(phone_number);
     doc.fontSize(9)
-        .text(phone_number, firstLineStart, 100)
-        .link(firstLineStart, 100, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
+        .fillColor("black")
+        .text(phone_number, firstLineStart, 70)
+        .link(firstLineStart, 70, phoneNumberWidth - 25, 10, `tel:${phone_number}`);
     doc.fontSize(9)
-        .text(' | ', firstLineStart + phoneNumberWidth - 25, 100)
-        .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 100)
-        .link(firstLineStart + phoneNumberWidth - 15, 100, doc.widthOfString(email), 10, `mailto:${email}`);
+        .text(' | ', firstLineStart + phoneNumberWidth - 25, 70)
+        .text(email, firstLineStart + phoneNumberWidth + doc.widthOfString('|') - 15, 70)
+        .link(firstLineStart + phoneNumberWidth - 15, 70, doc.widthOfString(email), 10, `mailto:${email}`);
 
     // starting position for the first link
-    let position = 72;
+    let position = firstLineStart;
 
     // the first link is set before going into the loop to avoid adding a separator before the first link
     let link = links[0].link;
     let linkWidth = doc.widthOfString(link);
 
     doc.fontSize(9)
-        .text(link, position, 115) 
-        .link(position, 115, linkWidth, 10, link);
+        .text(link, position, 85) 
+        .link(position, 85, linkWidth, 10, link);
 
     position += linkWidth; 
 
@@ -131,32 +132,34 @@ const generatePDF = (resume)=>{
         linkWidth = doc.widthOfString(link);
 
         // add a separator before each link
-        doc.text(' | ', position, 115);
+        doc.text(' | ', position, 85);
         position += doc.widthOfString(' | ');
 
         // add the link
-        doc.text(link, position, 115)
-            .link(position, 115, linkWidth, 10, link);
+        doc.text(link, position, 85)
+            .link(position, 85, linkWidth, 10, link);
 
         position += linkWidth; 
     }
-    doc.moveDown();
+    doc.moveDown(0.5);
     doc.text("", firstLineStart);
     sectionPDF(doc, "Profile", summary, [11, 10]);
     sectionPDF(doc, "Skills", skills, [11, 10]);
     sectionPDFwithList(doc, "Education", educations, ["title", "subtitle"], [11, 10, 8]);
+    sectionPDFwithList(doc, "Experience", experiences, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
+    sectionPDFwithList(doc, "Projects", projects, ["title", "subtitle", "bullet_points"], [11, 10, 8, 9]);
     doc.pipe(fs.createWriteStream('./output/myresume.pdf')); 
     doc.end();
 }
 function sectionPDF(doc, section, content, fonts){
     doc.fontSize(fonts[0])
-        .fillColor("blue")
+        .fillColor("#6495ED")
         .text(section)
-    doc.moveDown(0.5);
+    doc.moveDown(0.25);
     doc.fontSize(fonts[1])
         .fillColor("black")
         .text(content);
-    doc.moveDown();
+    doc.moveDown(0.5);
 }
 // handle section with title, subtitle and bullet points
 // paramters, section is section name like experience, contentArr is an array of experiences like[{title:1, subtitle: 2, bullet_points: 3}]
@@ -164,18 +167,27 @@ function sectionPDF(doc, section, content, fonts){
 // fonts is [sectionFontSize, titleFontSize, subtitleFontSize, bullet_pointsFontSize]
 function sectionPDFwithList(doc, section, contentArr,loopOrder, fonts){
     doc.fontSize(fonts[0])
-        .fillColor("blue")
+        .fillColor("#6495ED")
         .text(section)
-    doc.moveDown(0.5);
+    doc.moveDown(0.25);
     for(const content of contentArr){
         for(let i = 0; i < loopOrder.length; i++){
             const property = loopOrder[i];
             if(!content[property]) break;
-            doc.fontSize(fonts[i + 1])
+            if(property === "bullet_points"){
+                doc.moveDown(0.25);
+                content[property].split("\n").forEach((point)=>{
+                    doc.fontSize(fonts[i + 1])
+                        .text(point);
+                })
+            }else{
+                doc.fontSize(fonts[i + 1])
                 .fillColor("black")
                 .text(content[property])
+            }
+            
         }
-        doc.moveDown();
+        doc.moveDown(0.5);
     }
 }
 module.exports = {tailorResume};
