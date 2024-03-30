@@ -21,8 +21,9 @@ const tailorResume = async (req, res)=>{
         const projectrows = await knex("project").where("resume_id", resume_id);
         // get keywords array
         const {jd}=req.body;
-        // const keywords = await getKeywords(jd);
-        const keywords = ["Bachelor's degree","Computer Science","Engineering","Full Stack Developer","PHP","Laravel framework","HTML","CSS","JavaScript","Vue.js","MySQL","Git","GitLab","Docker","software development lifecycle","Agile methodologies","problem-solving","communication skills"];
+        const keywords = await getKeywords(jd);
+        // for test
+        // const keywords = ["Bachelor's degree","Computer Science","Engineering","Full Stack Developer","PHP","Laravel framework","HTML","CSS","JavaScript","Vue.js","MySQL","Git","GitLab","Docker","software development lifecycle","Agile methodologies","problem-solving","communication skills"];
 
         // tailor experience and project
         const tailoredExperience = tailorObject(experiencerows, keywords);
