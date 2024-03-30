@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const resumeController = require('../controllers/resume-controller');
-const {resumeValidator, useridValidator} = require('../middlewares/resume-validator');
+const {resumeValidator,} = require('../middlewares/resume-validator');
 router.route('/:userid')  
-    .get(useridValidator, resumeController.getresume)
+    .get(resumeController.getresume)
     .post(resumeValidator,resumeController.postresume)
-    .put(useridValidator, resumeController.editresume);
+    .put(resumeController.editresume);
 
 
 
