@@ -47,5 +47,11 @@ const getresume = async(req, res)=>{
         return res.status(500).json({error: {message: `Can not get resume ${error}`}});
     }
 }
-
-module.exports = {postresume, getresume};
+const editresume = async(req, res)=>{
+    try {
+        return res.json({message: "edit resume"});
+    } catch (error) {
+        
+    }
+}
+module.exports = {postresume, getresume, editresume};
