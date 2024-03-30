@@ -30,8 +30,7 @@ const postresume = async(req, res)=>{
 const getresume = async(req, res)=>{
     try {
         const user_id = req.params.userid;
-        const foundResume = await knex("resume")
-            .where("user_id", user_id);
+        const foundResume = await knex("resume").where("user_id", user_id);
         let resume = foundResume[0];
         if(!resume){
             return res.json({message: "no resume"});
@@ -49,6 +48,13 @@ const getresume = async(req, res)=>{
 }
 const editresume = async(req, res)=>{
     try {
+        const user_id = req.params.userid;
+        const foundResume = await knex("resume").where("user_id", user_id);
+        let resume = foundResume[0];
+        if(!resume){
+            return res.json({message: "no resume"});
+        }
+        const resume_id = resume.id;
         return res.json({message: "edit resume"});
     } catch (error) {
         
