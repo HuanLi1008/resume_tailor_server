@@ -4,7 +4,7 @@ const {resumeValidator,} = require('../middlewares/resume-validator');
 router.route('/:userid')  
     .get(resumeController.getresume)
     .post(resumeValidator,resumeController.postresume)
-    .put(resumeController.editresume);
+    .put(resumeValidator, resumeController.editresume);
 
 
 

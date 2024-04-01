@@ -55,9 +55,12 @@ const editresume = async(req, res)=>{
             return res.json({message: "no resume"});
         }
         const resume_id = resume.id;
-        return res.json({message: "edit resume"});
-    } catch (error) {
+        await knex("resume").where("id", resume_id).del();
+        postresume(req, res);
         
+    } catch (error) {
+        return res.status(500).json({error:{message: `can not edit resume ${error}`}});
     }
 }
+
 module.exports = {postresume, getresume, editresume};
